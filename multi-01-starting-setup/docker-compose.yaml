@@ -1,0 +1,46 @@
+version: "3.8"
+services:
+  mongodb:
+    image: 'mongo' # define image
+    volumes:
+      - database:/data/db
+    env_file:
+      - ./env/mongo.env
+    container_name: mongodb
+    # environment:
+      # MONGO_INITDB_ROOT_USERNAME=hieu # another syntax to define environment variables
+      # MONGO_INITDB_ROOT_USERNAME: hieu
+      # MONGO_INITDB_ROOT_PASSWORD: secret
+  backend:
+    # build: ./backend # chỉ cho docker-compose thấy nơi để build image
+    build:
+      context: ./backend
+      dockerfile: Dockerfile # có thể là Dockerfile-dev tùy vào file mà ta muốn build
+      # args:
+        # - name=value
+    ports:
+      - '80:4000' # <PORT_WANT_TO_BE_EXPOSE>:<PORT_BEING_EXPOSED>
+    volumes:
+      - logs:/backend-app/logs
+      - ./backend:/backend-app
+      - /backend-app/node_modules
+    env_file:
+      - ./env/backend.env
+    depends_on: # cho biết rằng service này depended vào service khác, và nên được run sau khi service đó đã được build & run
+      - mongodb
+    container_name: backend
+  frontend:
+    build: ./frontend
+    ports:
+      - '3000:3000'
+    volumes:
+      - ./frontend/src:/frontend-app/src
+    stdin_open: true
+    tty: true
+    depends_on:
+      - backend
+    container_name: frontend
+
+volumes:
+  database:
+  logs:

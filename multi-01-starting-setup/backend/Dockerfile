@@ -12,4 +12,7 @@ COPY . .
 
 EXPOSE $PORT
 
-CMD ["node", "app.js"]
+ENV MONGODB_USERNAME=hieu
+ENV MONGODB_PASSWORD=secret
+
+CMD ["npm", "start"]
